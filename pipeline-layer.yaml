@@ -38,11 +38,11 @@ Parameters:
   GitRepository:
     Type: String
     Description: GitRepository of Lambda Functions
-    Default: https://github.com/diegonat/mxnetblog.git
+    Default: https://github.com/aws-samples/amazon-sagemaker-to-aws-lambda-pipeline-blogpost.git
   GitRepositoryName:
     Type: String
     Description: GitRepository Name of Lambda Functions
-    Default: mxnetblog
+    Default: amazon-sagemaker-to-aws-lambda-pipeline-blogpost
 
 Resources:
   S3BucketCloudTrail:
@@ -449,7 +449,7 @@ Resources:
               build:
                 commands:
                   - "git clone ${GitRepository}"
-                  - "cd ${GitRepositoryName}"
+                  - "cd ${GitRepositoryName}/lambdachecker"
                   - "rm -rf .git "
                   - "ls -al "
                   - "aws s3 cp s3://${SourceBucket}/${SourceS3ObjectKey} ."
@@ -457,8 +457,8 @@ Resources:
                   - "ls -al"
                   - "pwd"
                   - "rm -f ${SourceS3ObjectKey}"
-                  - "aws cloudformation package --template-file samTemplateLambdaChecker.yaml --s3-bucket ${SourceBucket} --output-template-file ../outputSamTemplate.yaml"
-                  - "cp samTemplateLambdaChecker.yaml ../"
+                  - "aws cloudformation package --template-file samTemplateLambdaChecker.yaml --s3-bucket ${SourceBucket} --output-template-file ../../outputSamTemplate.yaml"
+                  - "cp samTemplateLambdaChecker.yaml ../../"
             artifacts:
               type: zip
               files:
