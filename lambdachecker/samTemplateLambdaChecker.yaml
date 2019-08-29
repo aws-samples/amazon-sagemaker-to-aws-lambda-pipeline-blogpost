@@ -1,0 +1,62 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Prediction 
+Parameters:
+  LayerARN: 
+    Type: String
+Resources:
+  SMSantispam:
+    Type: AWS::Serverless::Function
+    Properties:
+      AutoPublishAlias: live
+      Handler: lambda_function.handler
+      Runtime: python2.7
+      MemorySize: 256
+      Tracing: Active
+      Timeout: 10
+      CodeUri: ./
+      Layers:
+        - !Ref LayerARN
+      Events:
+        GetInference:
+          Type: Api
+          Properties:
+            Path: /
+            Method: POST
+        OptionsInference:
+          Type: Api
+          Properties:
+            Path: /
+            Method: OPTIONS
+      DeploymentPreference:
+        Type: AllAtOnce
+        Hooks:
+          PreTraffic: !Ref preTrafficHook
+
+  preTrafficHook:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: lambdachecker.handler
+      CodeUri: ./lambdachecker.js
+      Policies:
+        - Version: "2012-10-17"
+          Statement: 
+          - Effect: "Allow"
+            Action: 
+              - "codedeploy:PutLifecycleEventHookExecutionStatus"
+            Resource:
+              !Sub 'arn:aws:codedeploy:${AWS::Region}:${AWS::AccountId}:deploymentgroup:${ServerlessDeploymentApplication}/*'
+        - Version: "2012-10-17"
+          Statement: 
+          - Effect: "Allow"
+            Action: 
+              - "lambda:InvokeFunction"
+            Resource: !Ref SMSantispam.Version
+      Runtime: nodejs10.x
+      FunctionName: 'CodeDeployHook_preTrafficHook'
+      DeploymentPreference:
+        Enabled: false
+      Timeout: 5
+      Environment:
+        Variables:
+          NewVersion: !Ref SMSantispam.Version
