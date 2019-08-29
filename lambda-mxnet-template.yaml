@@ -1,0 +1,36 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: 'AWS::Serverless-2016-10-31'
+Description: AWS Lambda MXNet GetInference.
+
+Globals:
+  Api:
+    # enable CORS; to make more specific, change the origin wildcard
+    # to a particular domain name, e.g. "'www.example.com'"
+    Cors:
+      AllowMethods: "'*'"
+      AllowHeaders: "'*'"
+      AllowOrigin: "'*'"
+
+Resources:
+  LambdaMXNetInference:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      Handler: lambda_function.handler
+      Runtime: python2.7
+      Description: ''
+      MemorySize: 256
+      Timeout: 15
+      CodeUri: .debug/
+      Layers:
+        - !Sub arn:aws:lambda:${AWS:Region}:${AWS:AccountId}:layer:MXNet-lambda-layer
+      Events:
+        GetInference:
+          Type: Api
+          Properties:
+            Path: /
+            Method: any
+        OptionsInference:
+          Type: Api
+          Properties:
+            Path: /
+            Method: OPTIONS
