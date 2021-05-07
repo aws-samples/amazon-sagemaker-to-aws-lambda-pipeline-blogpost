@@ -52,7 +52,7 @@ Resources:
             Action: 
               - "lambda:InvokeFunction"
             Resource: !Ref SMSantispam.Version
-      Runtime: nodejs10.x
+      Runtime: nodejs14.x
       FunctionName: 'CodeDeployHook_preTrafficHook'
       DeploymentPreference:
         Enabled: false
